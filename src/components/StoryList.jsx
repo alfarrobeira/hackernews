@@ -5,7 +5,7 @@ const StoryList = ({ stories }) => {
     return (
         <>
             {
-                <div>
+                <div className="container">
                     <div className="listHeader" id="dummy">
                         <span className="ypsilon">Y</span>
                         <span className="title">Hacker News</span>

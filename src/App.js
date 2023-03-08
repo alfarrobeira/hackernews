@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { Loader } from 'semantic-ui-react';
 import "./App.css";
 import StoryList from "./components/StoryList";
 import SearchBar from "./components/SearchBar";
 
-function App() {
+const App = () => {
   const URL_TOPSTORIES =
     "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty";
 
@@ -21,7 +22,7 @@ function App() {
     fetch(URL_TOPSTORIES)
       .then((response) => response.json())
       .then((jsonIds) => {
-        const promises = jsonIds.slice(0, 10).map((id) => {
+        const promises = jsonIds.slice(0, 30).map((id) => {
           // fetch story with ID
           return fetch(
             `https://hacker-news.firebaseio.com/v0/item/${id}.json?print=pretty`
@@ -50,7 +51,7 @@ function App() {
   return (
     <div className="App">
       <SearchBar />
-      {loading ? <div>"loading..."</div> : <StoryList stories={stories} />}
+      {loading ? <Loader active size="large"> Loading</Loader> : <StoryList stories={stories} />}
     </div>
   );
 }
