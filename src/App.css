@@ -3,6 +3,12 @@
   max-width: 1400px;
 }
 
+.paginator {
+  display: block;
+  text-align: center;
+  padding: 1em;
+}
+
 .container {
   background-color: #f6f6ef;
   display: flex;

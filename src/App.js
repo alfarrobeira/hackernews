@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Loader } from 'semantic-ui-react';
+import { Loader } from "semantic-ui-react";
+import { Pagination } from "semantic-ui-react";
 import "./App.css";
 import StoryList from "./components/StoryList";
 import SearchBar from "./components/SearchBar";
@@ -10,8 +11,9 @@ const App = () => {
 
   const [stories, setStories] = useState([]);
   const [query, setQuery] = useState("");
-  const [page, setPage] = useState(1);
-  const storiesPerPage = 20;
+  const [page, setPage] = useState(1); // start at page 1
+  const [totalPages, setTotalPages] = useState(0);
+  const storiesPerPage = 19;
   const [loading, setLoading] = useState(true);
 
   // doing it this way would be much nicer ;-) including error handling:
@@ -22,17 +24,23 @@ const App = () => {
     fetch(URL_TOPSTORIES)
       .then((response) => response.json())
       .then((jsonIds) => {
-        const promises = jsonIds.slice(0, 30).map((id) => {
-          // fetch story with ID
-          return fetch(
-            `https://hacker-news.firebaseio.com/v0/item/${id}.json?print=pretty`
+        setTotalPages(Math.ceil(jsonIds.length / storiesPerPage));
+        const promises = jsonIds
+          .slice(
+            (page - 1) * storiesPerPage,
+            (page - 1) * storiesPerPage + storiesPerPage
           )
-            .then((response) => response.json())
-            .then((data) => {
-              return data;
-            })
-            .catch((e) => console.log(e));
-        });
+          .map((id) => {
+            // fetch story with ID
+            return fetch(
+              `https://hacker-news.firebaseio.com/v0/item/${id}.json?print=pretty`
+            )
+              .then((response) => response.json())
+              .then((data) => {
+                return data;
+              })
+              .catch((e) => console.log(e));
+          });
         Promise.all(promises).then((results) => {
           setStories(results);
           setLoading(false);
@@ -51,9 +59,27 @@ const App = () => {
   return (
     <div className="App">
       <SearchBar />
-      {loading ? <Loader active size="large"> Loading</Loader> : <StoryList stories={stories} />}
+      {loading ? (
+        <Loader active size="large">
+          {" "}
+          Loading
+        </Loader>
+      ) : (
+        <StoryList stories={stories} />
+      )}
+      {loading ? (
+        <div />
+      ) : (
+        <div className="paginator">
+          <Pagination id="5"
+            defaultActivePage={page}
+            totalPages={totalPages}
+            onPageChange={(e, data) => setPage(data.activePage)}
+          />
+        </div>
+      )}
     </div>
   );
-}
+};
 
 export default App;
