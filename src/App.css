@@ -3,7 +3,7 @@
   max-width: 1400px;
 }
 
-.paginator {
+.paginator, .searchContainer {
   display: block;
   text-align: center;
   padding: 1em;

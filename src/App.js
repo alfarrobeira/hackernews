@@ -8,18 +8,33 @@ import SearchBar from "./components/SearchBar";
 const App = () => {
   const URL_TOPSTORIES =
     "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty";
+  const URL_SEARCH = "https://hn.algolia.com/api/v1/search";
 
   const [stories, setStories] = useState([]);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1); // start at page 1
   const [totalPages, setTotalPages] = useState(0);
-  const storiesPerPage = 19;
+  const storiesPerPage = 18;
   const [loading, setLoading] = useState(true);
+
+  const getSearchResults = () => {
+    setLoading(true);
+    fetch(
+      `${URL_SEARCH}?tags=story&restrictSearchableAttributes=title&numericFilters=num_comments>0&hitsPerPage=${storiesPerPage}&query=${query}&page=${page}`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        //console.log(data);
+        setStories(data.hits);
+        setLoading(false);
+      });
+  };
 
   // doing it this way would be much nicer ;-) including error handling:
   // https://codesandbox.io/embed/hackernews-top-10-posts-h73km
   // my solution... just to prove that it works using all those promises ;-)
-  const getStories = () => {
+  const getTopStories = () => {
+    setLoading(true);
     // fetch all top stories
     fetch(URL_TOPSTORIES)
       .then((response) => response.json())
@@ -49,34 +64,35 @@ const App = () => {
       .catch((e) => console.log(e));
   };
 
-  // called on mount
+  // called on mount and on value changes
   useEffect(() => {
-    setLoading(true);
-    getStories();
+    if (query !== "") getSearchResults();
+    else getTopStories();
     //console.log(stories);
   }, [query, page]);
 
   return (
     <div className="App">
-      <SearchBar />
       {loading ? (
         <Loader active size="large">
           {" "}
           Loading
         </Loader>
       ) : (
-        <StoryList stories={stories} />
-      )}
-      {loading ? (
-        <div />
-      ) : (
-        <div className="paginator">
-          <Pagination id="5"
-            defaultActivePage={page}
-            totalPages={totalPages}
-            onPageChange={(e, data) => setPage(data.activePage)}
-          />
-        </div>
+        <>
+          <div className="searchContainer">
+            <SearchBar setQuery={setQuery} setPage={setPage} />
+          </div>
+          <StoryList stories={stories} />
+          <div className="paginator">
+            <Pagination
+              id="5"
+              defaultActivePage={page}
+              totalPages={totalPages}
+              onPageChange={(e, data) => setPage(data.activePage)}
+            />
+          </div>
+        </>
       )}
     </div>
   );
