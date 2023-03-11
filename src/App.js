@@ -15,6 +15,7 @@ const App = () => {
   const [page, setPage] = useState(1); // start at page 1
   const [totalPages, setTotalPages] = useState(0);
   const storiesPerPage = 18;
+  const maxPages = 50;
   const [loading, setLoading] = useState(true);
 
   const getSearchResults = () => {
@@ -24,7 +25,8 @@ const App = () => {
     )
       .then((response) => response.json())
       .then((data) => {
-        //console.log(data);
+        console.log(data);
+        setTotalPages(Math.min(Math.ceil(data.nbHits / storiesPerPage), maxPages));
         setStories(data.hits);
         setLoading(false);
       });
@@ -39,7 +41,7 @@ const App = () => {
     fetch(URL_TOPSTORIES)
       .then((response) => response.json())
       .then((jsonIds) => {
-        setTotalPages(Math.ceil(jsonIds.length / storiesPerPage));
+        setTotalPages(Math.min(Math.ceil(jsonIds.length / storiesPerPage), maxPages));
         const promises = jsonIds
           .slice(
             (page - 1) * storiesPerPage,
